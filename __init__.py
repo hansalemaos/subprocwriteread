@@ -489,6 +489,7 @@ class SubProcInputOutput:
         )
         if invisible:
             kwargs.update(invisibledict)
+        kwargs.update({"bufsize": 0})
         self.p = subprocess.Popen(cmd, **kwargs)
         self._t_stdout = threading.Thread(target=self._read_stdout)
         self._t_stderr = threading.Thread(target=self._read_stderr)
@@ -537,6 +538,7 @@ class SubProcInputOutput:
                 killthread(thr)
             except Exception as e:
                 sys.stderr.write(f"{e}\n")
+                sys.stderr.flush()
 
     def _read_stdout(self):
         for l in iter(self.p.stdout.readline, b""):
@@ -547,6 +549,8 @@ class SubProcInputOutput:
                     self.stdout.append(l)
                 if self.print_stdout:
                     sys.stdout.write(f'{l.decode("utf-8", "backslashreplace")}')
+                    sys.stdout.flush()
+
             except Exception:
                 break
 
@@ -559,6 +563,7 @@ class SubProcInputOutput:
                     self.stderr.append(l)
                 if self.print_stderr:
                     sys.stderr.write(f'{l.decode("utf-8", "backslashreplace")}')
+                    sys.stderr.flush()
             except Exception:
                 break
 
@@ -580,7 +585,7 @@ class SubProcInputOutput:
 
     def write(self, cmd, wait_to_complete=0.1, convert_to_83=False):
         if convert_to_83:
-            convert_path_to_short(convert_to_83)
+            cmd = convert_path_to_short(cmd)
         if isinstance(cmd, str):
             cmd = cmd.encode()
         if not cmd.endswith(b"\n"):
