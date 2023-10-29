@@ -652,29 +652,42 @@ class SubProcInputOutput:
         return self
 
     def flush_stdout(self):
-        self.get_lock()
-        self.stdout.clear()
-        self.release_lock()
+        try:
+            self.get_lock()
+            self.stdout.clear()
+        finally:
+            try:
+                self.release_lock()
+            except Exception:
+                pass
         return self
 
     def flush_stderr(self):
-        self.get_lock()
-        self.stderr.clear()
-        self.release_lock()
+        try:
+            self.get_lock()
+            self.stderr.clear()
+        finally:
+            try:
+                self.release_lock()
+            except Exception:
+                pass
         return self
 
     def flush_stdin(self):
-        self.get_lock()
-        self.stdin.clear()
-        self.release_lock()
+        try:
+            self.get_lock()
+            self.stdin.clear()
+        finally:
+            try:
+                self.release_lock()
+            except Exception:
+                pass
         return self
 
     def flush_all_pipes(self):
-        self.get_lock()
         self.stdin.clear()
         self.stdout.clear()
         self.stderr.clear()
-        self.release_lock()
 
     def send_ctrl_c(self):
         send_ctrl_commands(self.p.pid, command=0)
